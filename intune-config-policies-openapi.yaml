@@ -1,0 +1,146 @@
+openapi: 3.0.1
+info:
+  title: Intune Configuration Policies
+  description: Read-only Microsoft Graph endpoints for Intune device configuration policies.
+  version: "1.0.0"
+servers:
+  - url: https://graph.microsoft.com
+
+paths:
+
+  /beta/deviceManagement/configurationPolicies:
+    get:
+      operationId: ListConfigurationPolicies
+      summary: List Intune settings catalog configuration policies
+      description: >
+        Returns all settings catalog configuration policies in the tenant with
+        name, description, platform, technology, creation and modification dates.
+        Use this first to find the policy id (GUID) needed by other skills.
+      parameters:
+        - name: $filter
+          in: query
+          required: false
+          description: >
+            OData filter. Examples - platforms eq 'windows10' ,
+            technologies has 'mdm' , contains(name,'Baseline')
+          schema:
+            type: string
+        - name: $top
+          in: query
+          required: false
+          description: Maximum number of policies to return (1-1000).
+          schema:
+            type: integer
+        - name: $select
+          in: query
+          required: false
+          description: Comma separated properties, e.g. id,name,platforms,lastModifiedDateTime
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Collection of configuration policies.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /beta/deviceManagement/configurationPolicies/{policyId}:
+    get:
+      operationId: GetConfigurationPolicy
+      summary: Get one Intune settings catalog policy including all its settings
+      description: >
+        Returns a single configuration policy. Settings are expanded so the full
+        setting instance tree (setting definition ids and chosen values) is returned.
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          description: The GUID id of the configuration policy.
+          schema:
+            type: string
+        - name: $expand
+          in: query
+          required: false
+          description: Set to "settings" to include the full setting body.
+          schema:
+            type: string
+            default: settings
+      responses:
+        "200":
+          description: A configuration policy with its settings.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /beta/deviceManagement/configurationPolicies/{policyId}/assignments:
+    get:
+      operationId: GetConfigurationPolicyAssignments
+      summary: Get group assignments for an Intune configuration policy
+      description: >
+        Returns the include and exclude group assignments, assignment filter id
+        and filter type for the specified configuration policy.
+      parameters:
+        - name: policyId
+          in: path
+          required: true
+          description: The GUID id of the configuration policy.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Assignment collection for the policy.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /beta/deviceManagement/deviceConfigurations:
+    get:
+      operationId: ListDeviceConfigurationProfiles
+      summary: List legacy Intune device configuration profiles
+      description: >
+        Returns classic device configuration profiles such as administrative
+        templates, endpoint protection and device restriction profiles. Use this
+        in addition to ListConfigurationPolicies for full coverage of the tenant.
+      parameters:
+        - name: $filter
+          in: query
+          required: false
+          description: OData filter, e.g. contains(displayName,'Telit')
+          schema:
+            type: string
+        - name: $top
+          in: query
+          required: false
+          description: Maximum number of profiles to return.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Collection of device configuration profiles.
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /beta/deviceManagement/deviceConfigurations/{profileId}:
+    get:
+      operationId: GetDeviceConfigurationProfile
+      summary: Get one legacy Intune device configuration profile
+      description: Returns full properties of a single classic device configuration profile.
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          description: The GUID id of the device configuration profile.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A device configuration profile.
+          content:
+            application/json:
+              schema:
+                type: object
